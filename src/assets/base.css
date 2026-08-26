@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --jw-navy: #15246D;
+  --jw-navy-rgb: 21, 36, 109;
+  --jw-blue: #1E98FF;
+  --jw-blue-rgb: 30, 152, 255;
+  --jw-blue-light: #E8F4FF;
+  --color-border: #DCE3EC;
+  --color-text-muted: #5A6B85;
+  --radius-lg: 1rem;
+  --radius-md: 0.5rem;
+}
+
+body {
+  font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--jw-navy);
+  margin: 0;
+}
