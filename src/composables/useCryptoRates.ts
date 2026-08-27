@@ -1,6 +1,6 @@
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onScopeDispose } from 'vue'
 
-export function useCryptoRates(symbols: string[], intervalMs = 10000) {
+export function useCryptoRates(intervalMs = 10000) {
   const rates = ref<Record<string, number>>({})
   const isFetching = ref(false)
   const error = ref<string | null>(null)
@@ -13,14 +13,8 @@ export function useCryptoRates(symbols: string[], intervalMs = 10000) {
       if (!res.ok) throw new Error(`Coinbase API error: ${res.status}`)
       const { data } = await res.json() as { data: { rates: Record<string, string> } }
 
-      // API returns "1 USD = X <symbol>" — invert to get USD price per unit
       const next: Record<string, number> = {}
-      for (const symbol of symbols) {
-        const rate = data.rates[symbol]
-        if (rate === undefined) {
-          console.warn(`No rate returned for ${symbol}`)
-          continue
-        }
+      for (const [symbol, rate] of Object.entries(data.rates)) {
         next[symbol] = 1 / parseFloat(rate)
       }
       rates.value = next
@@ -55,12 +49,13 @@ export function useCryptoRates(symbols: string[], intervalMs = 10000) {
     }
   }
 
-  onMounted(() => {
-    startPolling()
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-  })
+  // Uses onScopeDispose (not onMounted/onUnmounted) so this also works
+  // when called from inside a Pinia store's setup, whose effect scope
+  // is independent of whichever component first instantiates the store.
+  startPolling()
+  document.addEventListener('visibilitychange', handleVisibilityChange)
 
-  onUnmounted(() => {
+  onScopeDispose(() => {
     stopPolling()
     document.removeEventListener('visibilitychange', handleVisibilityChange)
   })

@@ -3,22 +3,29 @@ import { computed } from 'vue'
 import { useCryptoRates } from '../composables/useCryptoRates'
 
 interface Split {
-  btcAmount: number
-  ethAmount: number
+  primaryAmount: number
+  secondaryAmount: number
 }
 
+const PRIMARY_WEIGHT = 0.7
+const SECONDARY_WEIGHT = 0.3
+
 export const useCryptoSplitStore = defineStore('cryptoSplit', () => {
-  const { rates, isFetching, error } = useCryptoRates(['BTC', 'ETH'])
+  const { rates, isFetching, error } = useCryptoRates()
+
+  const symbols = computed(() => Object.keys(rates.value).sort())
 
   const splitFor = computed(() => {
-    return (usdAmount: number): Split | null => {
-      if (!rates.value.BTC || !rates.value.ETH) return null
+    return (usdAmount: number, primaryCoin: string, secondaryCoin: string): Split | null => {
+      const primaryRate = rates.value[primaryCoin]
+      const secondaryRate = rates.value[secondaryCoin]
+      if (!primaryRate || !secondaryRate) return null
       return {
-        btcAmount: (usdAmount * 0.7) / rates.value.BTC,
-        ethAmount: (usdAmount * 0.3) / rates.value.ETH,
+        primaryAmount: (usdAmount * PRIMARY_WEIGHT) / primaryRate,
+        secondaryAmount: (usdAmount * SECONDARY_WEIGHT) / secondaryRate,
       }
     }
   })
 
-  return { rates, isFetching, error, splitFor }
+  return { rates, isFetching, error, symbols, splitFor }
 })

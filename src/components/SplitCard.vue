@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 
 // A store isn't completely necessary for this assignment, but it is useful in a realistic bigger feature where
-// with more components consume the crypto conversion data
+// more potential components could consume the same crypto conversion data
 import { useCryptoSplitStore } from '@/stores/cryptoStore';
 
 const props = defineProps<{
@@ -11,33 +11,55 @@ const props = defineProps<{
   defaultUSDAmount?: number
 }>()
 
+const primaryCoin = ref('BTC');
+const secondaryCoin = ref('ETH');
+
 const store = useCryptoSplitStore();
+const { isFetching, error, symbols } = storeToRefs(store);
+
+const primaryCoinOptions = computed(() => symbols.value.filter((s) => s !== secondaryCoin.value));
+const secondaryCoinOptions = computed(() => symbols.value.filter((s) => s !== primaryCoin.value));
+
 const usdAmount = ref(props.defaultUSDAmount ?? 1000);
-const split = computed(() => store.splitFor(usdAmount.value))
+const split = computed(() => store.splitFor(usdAmount.value, primaryCoin.value, secondaryCoin.value))
 
-const { isFetching, error } = storeToRefs(store)
-
-const cardOpacity = computed(() => (isFetching ? 0.85 : 1))
+const cardOpacity = computed(() => (isFetching.value ? 0.85 : 1))
 
 </script>
 
 <template>
   <div class="split-card">
     <h2 class="split-card__title">{{title}}</h2>
+    
+    <div class="field-container">
+        <label class="field-label" for="usd-amount">Investable USD Assets</label>
+        <input id="usd-amount" v-model.number="usdAmount" type="number" class="text-input" min="0" />
+    </div>
 
-    <label class="field-label" for="usd-amount">Investable USD Assets</label>
-    <input id="usd-amount" v-model.number="usdAmount" type="number" class="text-input" min="0" />
+    <div class="field-container">
+    <label class="field-label" for="primary-coin">Primary Coin (70%)</label>
+    <select id="primary-coin" v-model="primaryCoin" class="coin-select">
+      <option v-for="symbol in primaryCoinOptions" :key="symbol" :value="symbol">{{ symbol }}</option>
+    </select>
+    </div>
+
+    <div class="field-container">
+    <label class="field-label" for="secondary-coin">Secondary Coin (30%)</label>
+    <select id="secondary-coin" v-model="secondaryCoin" class="coin-select">
+      <option v-for="symbol in secondaryCoinOptions" :key="symbol" :value="symbol">{{ symbol }}</option>
+    </select>
+    </div>
 
     <div v-if="isFetching && !split" class="status-text">Fetching live conversions...</div>
 
     <div v-else-if="split" class="split-results">
-      <div class="split-row split-row--btc">
-        <span class="split-row__label">BTC (70%)</span>
-        <span class="split-row__value">{{ split.btcAmount.toFixed(6) }} BTC</span>
+      <div class="split-row split-row--primary">
+        <span class="split-row__label">{{ primaryCoin }} (70%)</span>
+        <span class="split-row__value">{{ split.primaryAmount.toFixed(6) }} {{ primaryCoin }}</span>
       </div>
-      <div class="split-row split-row--eth">
-        <span class="split-row__label">ETH (30%)</span>
-        <span class="split-row__value">{{ split.ethAmount.toFixed(6) }} ETH</span>
+      <div class="split-row split-row--secondary">
+        <span class="split-row__label">{{ secondaryCoin }} (30%)</span>
+        <span class="split-row__value">{{ split.secondaryAmount.toFixed(6) }} {{ secondaryCoin }}</span>
       </div>
     </div>
     
@@ -87,8 +109,10 @@ const cardOpacity = computed(() => (isFetching ? 0.85 : 1))
       box-shadow: 0 0 0 3px rgb(var(--jw-blue-rgb) / 0.18);
     }
   }
+}
 
-  & .coin-select { margin-top: 0.75rem; }
+.field-container {
+    margin-bottom: 1.25rem;
 }
 
 .field-label {
@@ -111,7 +135,6 @@ const cardOpacity = computed(() => (isFetching ? 0.85 : 1))
 }
 
 .split-results {
-  margin-top: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.625rem;
