@@ -197,7 +197,7 @@ watch(usdAmount, (newValue) => {
 .refresh-button {
   flex-shrink: 0;
   padding: 0.25rem 0.625rem;
-  border: 1px solid var(--color-input-border);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: none;
   color: var(--jw-navy);
@@ -238,38 +238,10 @@ watch(usdAmount, (newValue) => {
   min-width: 3rem;
 }
 
-.split-row__percent {
-  width: 3.25rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 0.25rem 0.375rem;
-  font-size: 0.875rem;
-  font-family: inherit;
-}
-
-.split-row__percent:focus {
-  outline: none;
-  border-color: var(--jw-blue);
-}
-
 .split-row__value {
   margin-left: auto;
   font-family: 'SFMono-Regular', Consolas, monospace;
   color: var(--jw-navy);
   font-size: 0.9375rem;
-}
-
-.split-row__remove {
-  border: none;
-  background: none;
-  color: var(--jw-blue);
-  cursor: pointer;
-  font-size: 1.1rem;
-  line-height: 1;
-  padding: 0 0.25rem;
-}
-
-.split-row__remove:hover {
-  color: var(--jw-navy);
 }
 </style>

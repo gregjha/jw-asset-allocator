@@ -1,76 +1,81 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch } from 'vue'
 
 const props = defineProps<{
-  id: string;
-  label: string;
-  modelValue: string;
-  options: string[];
+  id: string
+  label: string
+  modelValue: string
+  options: string[]
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-const query = ref(props.modelValue);
-const isOpen = ref(false);
-const activeIndex = ref(-1);
+const query = ref(props.modelValue)
+const isOpen = ref(false)
+const activeIndex = ref(-1)
 
-const listboxId = computed(() => `${props.id}-listbox`);
+const listboxId = computed(() => `${props.id}-listbox`)
 function optionId(index: number) {
-  return `${props.id}-option-${index}`;
+  return `${props.id}-option-${index}`
 }
-const activeOptionId = computed(() => (activeIndex.value >= 0 ? optionId(activeIndex.value) : undefined));
+const activeOptionId = computed(() =>
+  activeIndex.value >= 0 ? optionId(activeIndex.value) : undefined,
+)
 const filteredOptions = computed(() => {
-  const q = query.value.trim().toUpperCase();
-  const matches = q ? props.options.filter((option) => option.includes(q)) : props.options;
-  return matches.slice(0, 5);
-});
+  const q = query.value.trim().toUpperCase()
+  const matches = q ? props.options.filter((option) => option.includes(q)) : props.options
+  return matches.slice(0, 5)
+})
 
-watch(() => props.modelValue, (value) => {
-  query.value = value;
-});
+watch(
+  () => props.modelValue,
+  (value) => {
+    query.value = value
+  },
+)
 
 function openDropdown() {
-  isOpen.value = true;
-  activeIndex.value = -1;
+  isOpen.value = true
+  activeIndex.value = -1
 }
 
 function closeDropdown() {
-  isOpen.value = false;
-  activeIndex.value = -1;
+  isOpen.value = false
+  activeIndex.value = -1
 }
 
 function selectOption(option: string) {
-  emit('update:modelValue', option);
-  query.value = option;
-  closeDropdown();
+  emit('update:modelValue', option)
+  query.value = option
+  closeDropdown()
 }
 
 function handleFocus(event: FocusEvent) {
-  (event.target as HTMLInputElement).select();
+  ;(event.target as HTMLInputElement).select()
 }
 
 function handleBlur() {
   setTimeout(() => {
-    closeDropdown();
-    query.value = props.modelValue;
-  }, 150);
+    closeDropdown()
+    query.value = props.modelValue
+  }, 150)
 }
 
 function moveActive(delta: number) {
   if (!isOpen.value) {
-    openDropdown();
-    return;
+    openDropdown()
+    return
   }
-  const count = filteredOptions.value.length;
-  if (!count) return;
-  activeIndex.value = (activeIndex.value + delta + count) % count;
+  const count = filteredOptions.value.length
+  if (!count) return
+  activeIndex.value = (activeIndex.value + delta + count) % count
 }
 
 function selectActive() {
-  const active = filteredOptions.value[activeIndex.value];
-  if (active) selectOption(active);
+  const active = filteredOptions.value[activeIndex.value]
+  if (active) selectOption(active)
 }
 </script>
 
@@ -97,7 +102,12 @@ function selectActive() {
       @keydown.esc="closeDropdown"
     />
 
-    <ul v-if="isOpen && filteredOptions.length" :id="listboxId" role="listbox" class="autocomplete__list">
+    <ul
+      v-if="isOpen && filteredOptions.length"
+      :id="listboxId"
+      role="listbox"
+      class="autocomplete__list"
+    >
       <li
         v-for="(option, index) in filteredOptions"
         :id="optionId(index)"
@@ -111,7 +121,9 @@ function selectActive() {
         {{ option }}
       </li>
     </ul>
-    <p v-else-if="isOpen" class="autocomplete__empty" aria-live="polite" role="status">No matches</p>
+    <p v-else-if="isOpen" class="autocomplete__empty" aria-live="polite" role="status">
+      No matches
+    </p>
   </div>
 </template>
 
@@ -133,7 +145,7 @@ function selectActive() {
   padding: 0.25rem;
   list-style: none;
   background: var(--color-surface);
-  border: 1px solid var(--color-input-border);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   box-shadow: 0 4px 12px rgb(var(--jw-navy-rgb) / 0.12);
 }
@@ -161,7 +173,7 @@ function selectActive() {
   font-size: 0.875rem;
   color: var(--color-text-muted);
   background: var(--color-surface);
-  border: 1px solid var(--color-input-border);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
 }
 </style>
