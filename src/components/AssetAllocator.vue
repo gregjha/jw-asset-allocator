@@ -12,8 +12,15 @@ const props = defineProps<{
 }>()
 
 const store = useCryptoSplitStore()
-const { isFetching, error, symbols, lastUpdated } = storeToRefs(store)
+const { isFetching, isRefreshThrottled, error, symbols, lastUpdated } = storeToRefs(store)
 const { refresh } = store
+
+const canRefresh = computed(() => !isFetching.value && !isRefreshThrottled.value)
+const refreshButtonLabel = computed(() => {
+  if (isFetching.value) return 'Updating...'
+  if (!canRefresh.value) return 'Recently Updated'
+  return 'Update'
+})
 
 const primaryCoin = ref('BTC')
 const secondaryCoin = ref('ETH')
@@ -95,8 +102,8 @@ watch(usdAmount, (newValue) => {
       <div v-if="lastUpdatedLabel" class="status-text status-text--subtle">
         Last updated {{ lastUpdatedLabel }}
       </div>
-      <button type="button" class="refresh-button" :disabled="isFetching" @click="refresh">
-        {{ isFetching ? 'Updating...' : 'Update' }}
+      <button type="button" class="refresh-button" :disabled="!canRefresh" @click="refresh">
+        {{ refreshButtonLabel }}
       </button>
     </div>
 

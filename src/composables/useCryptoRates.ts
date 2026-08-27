@@ -1,8 +1,11 @@
 import { ref, onScopeDispose } from 'vue'
 
+const REFRESH_COOLDOWN_MS = 5000
+
 export function useCryptoRates(intervalMs = 10000) {
   const rates = ref<Record<string, number>>({})
   const isFetching = ref(false)
+  const isRefreshThrottled = ref(false)
   const error = ref<string | null>(null)
   const lastUpdated = ref<Date | null>(null)
 
@@ -28,8 +31,22 @@ export function useCryptoRates(intervalMs = 10000) {
   }
 
   let intervalId: ReturnType<typeof setInterval> | null
+  let throttleTimeoutId: ReturnType<typeof setTimeout> | null = null
+  let lastRefreshAt = 0
 
   async function refresh() {
+    const now = Date.now()
+    if (now - lastRefreshAt < REFRESH_COOLDOWN_MS) return
+    lastRefreshAt = now
+
+    // Throttle to prevent user from spamming manual refresh, causing too many fetch updates
+    isRefreshThrottled.value = true
+    if (throttleTimeoutId) clearTimeout(throttleTimeoutId)
+    throttleTimeoutId = setTimeout(() => {
+      isRefreshThrottled.value = false
+      throttleTimeoutId = null
+    }, REFRESH_COOLDOWN_MS)
+
     await fetchRates()
     if (intervalId) {
       clearInterval(intervalId)
@@ -64,8 +81,9 @@ export function useCryptoRates(intervalMs = 10000) {
 
   onScopeDispose(() => {
     stopPolling()
+    if (throttleTimeoutId) clearTimeout(throttleTimeoutId)
     document.removeEventListener('visibilitychange', handleVisibilityChange)
   })
 
-  return { rates, isFetching, error, lastUpdated, refresh }
+  return { rates, isFetching, isRefreshThrottled, error, lastUpdated, refresh }
 }
