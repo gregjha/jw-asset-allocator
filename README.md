@@ -13,6 +13,7 @@ npm run preview   # Run in local production build
 ```
 
 ## File Structure
+
 ```
 src/
 ├── App.vue
@@ -30,7 +31,7 @@ src/
 
 ## Design Decisions
 
-- Conversion rates are fetched on mount and then polled continuously for updates. The thought process for this was that crypto assets are generally very volatile and can change value pretty quickly. In order to reduce polling amounts, the polling stops when the user is no longer viewing the page and users have an updated date and time of the last **successful** update. In a real world project with a more robust backend, the app would probably use websockets or SSE to get continuous updates on the crypto rates.
+- Conversion rates are fetched on mount and then polled continuously for updates, in this case every 30 seconds. The thought process for this was that crypto assets are generally very volatile and can change value pretty quickly. In order to reduce polling amounts, the polling stops when the user is no longer viewing the page and users have an updated date and time of the last **successful** update. Users can also manually refresh the conversion rates on demand if they want a quicker update. In a real world project with a more robust backend, the app would probably use websockets or SSE to get continuous updates on the crypto rates.
 - Pinia was used as a global state management library and `cryptoStore` is used as a single source of truth for the most recently updated crypto conversion rates. Global state management was probably overkill for this assignment, but a larger real world project with more components will draw upon the same data and will most certainly need something like this. There are two `AssetAllocator` components rendered to somewhat simulate that situation and to show that the store provides data correctly to each component while each `AssetAllocator` still handles the data locally.
 - A factory composable, `useCryptoRates`, handles fetch and polling. It's wrapped in the global store since the composable exposes the properly formatted conversion rate data from the Coinbase API and fetch states, which now every component can access through the store.
 - An autocomplete input component, `AutocompleteInput`, is used to allow the user to search for their desired crypto currency, since the list of currencies is pretty big. In a real world situation, this would probably be a base component that is reusable across a whole codebase or imported from a component library and not actually built out. The component in this project is still pretty reusable for any kinds of data, not just a list of crypto coins. For the sake of this project, I built one just to try it out in Vue.

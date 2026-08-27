@@ -12,7 +12,7 @@ export function useCryptoRates(intervalMs = 10000) {
     try {
       const res = await fetch('https://api.coinbase.com/v2/exchange-rates?currency=USD')
       if (!res.ok) throw new Error(`Coinbase API error: ${res.status}`)
-      const { data } = await res.json() as { data: { rates: Record<string, string> } }
+      const { data } = (await res.json()) as { data: { rates: Record<string, string> } }
 
       const next: Record<string, number> = {}
       for (const [symbol, rate] of Object.entries(data.rates)) {
@@ -27,7 +27,15 @@ export function useCryptoRates(intervalMs = 10000) {
     }
   }
 
-  let intervalId: ReturnType<typeof setInterval> | null;
+  let intervalId: ReturnType<typeof setInterval> | null
+
+  async function refresh() {
+    await fetchRates()
+    if (intervalId) {
+      clearInterval(intervalId)
+      intervalId = setInterval(fetchRates, intervalMs)
+    }
+  }
 
   function startPolling() {
     if (intervalId) return
@@ -50,7 +58,7 @@ export function useCryptoRates(intervalMs = 10000) {
       startPolling()
     }
   }
-  
+
   startPolling()
   document.addEventListener('visibilitychange', handleVisibilityChange)
 
@@ -59,5 +67,5 @@ export function useCryptoRates(intervalMs = 10000) {
     document.removeEventListener('visibilitychange', handleVisibilityChange)
   })
 
-  return { rates, isFetching, error, lastUpdated }
+  return { rates, isFetching, error, lastUpdated, refresh }
 }
