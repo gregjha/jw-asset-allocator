@@ -24,7 +24,7 @@ const usdAmount = ref(props.defaultUSDAmount ?? 1000);
 
 watch(usdAmount, (newValue) => {
   if (typeof newValue !== 'number' || !Number.isFinite(newValue)) return;
-  const rounded = Math.round(value * 100) / 100;
+  const rounded = Math.round(newValue * 100) / 100;
   if (rounded !== newValue) usdAmount.value = rounded;
 });
 
