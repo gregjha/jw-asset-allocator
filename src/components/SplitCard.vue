@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 
-// A store isn't completely necessary for this assignment, but it is useful in a realistic bigger feature where
-// more potential components could consume the same crypto conversion data
+// A store isn't completely necessary for this assignment, but it is extremely useful in a realistic bigger feature where more potential components could consume the same crypto conversion data
 import { useCryptoSplitStore } from '@/stores/cryptoStore';
+import CoinAutocomplete from './CoinAutocomplete.vue';
 
 const props = defineProps<{
   title?: string;
@@ -21,8 +21,15 @@ const primaryCoinOptions = computed(() => symbols.value.filter((s) => s !== seco
 const secondaryCoinOptions = computed(() => symbols.value.filter((s) => s !== primaryCoin.value));
 
 const usdAmount = ref(props.defaultUSDAmount ?? 1000);
-const split = computed(() => store.splitFor(usdAmount.value, primaryCoin.value, secondaryCoin.value))
 
+watch(usdAmount, (newValue) => {
+  if (typeof newValue !== 'number' || !Number.isFinite(newValue)) return;
+  const rounded = Math.round(value * 100) / 100;
+  if (rounded !== newValue) usdAmount.value = rounded;
+});
+
+
+const split = computed(() => store.splitFor(usdAmount.value, primaryCoin.value, secondaryCoin.value))
 const cardOpacity = computed(() => (isFetching.value ? 0.85 : 1))
 
 </script>
@@ -33,21 +40,18 @@ const cardOpacity = computed(() => (isFetching.value ? 0.85 : 1))
     
     <div class="field-container">
         <label class="field-label" for="usd-amount">Investable USD Assets</label>
-        <input id="usd-amount" v-model.number="usdAmount" type="number" class="text-input" min="0" />
+        <div class="currency-input">
+          <span class="currency-input__symbol">$</span>
+          <input id="usd-amount" v-model.number="usdAmount" type="number" class="text-input" min="0" step="0.01" />
+        </div>
     </div>
 
     <div class="field-container">
-    <label class="field-label" for="primary-coin">Primary Coin (70%)</label>
-    <select id="primary-coin" v-model="primaryCoin" class="coin-select">
-      <option v-for="symbol in primaryCoinOptions" :key="symbol" :value="symbol">{{ symbol }}</option>
-    </select>
+      <CoinAutocomplete id="primary-coin" label="Primary Coin (70%)" v-model="primaryCoin" :options="primaryCoinOptions" />
     </div>
 
     <div class="field-container">
-    <label class="field-label" for="secondary-coin">Secondary Coin (30%)</label>
-    <select id="secondary-coin" v-model="secondaryCoin" class="coin-select">
-      <option v-for="symbol in secondaryCoinOptions" :key="symbol" :value="symbol">{{ symbol }}</option>
-    </select>
+      <CoinAutocomplete id="secondary-coin" label="Secondary Coin (30%)" v-model="secondaryCoin" :options="secondaryCoinOptions" />
     </div>
 
     <div v-if="isFetching && !split" class="status-text">Fetching live conversions...</div>
@@ -83,10 +87,10 @@ const cardOpacity = computed(() => (isFetching.value ? 0.85 : 1))
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: 0 2px 8px rgb(var(--jw-navy-rgb) / 0.08);
-  background: #fff;
+  background: var(--color-surface);
   opacity: v-bind(cardOpacity);
   transition: opacity 0.2s ease;
-  text-align: center;
+  text-align: left;
 
   & .split-card__title {
     margin: 0 0 1.25rem;
@@ -94,45 +98,37 @@ const cardOpacity = computed(() => (isFetching.value ? 0.85 : 1))
     font-weight: 700;
     color: var(--jw-navy);
   }
-
-  & .text-input,
-  & .coin-select {
-    padding: 0.625rem 0.75rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    font-family: inherit;
-
-    &:focus {
-      outline: none;
-      border-color: var(--jw-blue);
-      box-shadow: 0 0 0 3px rgb(var(--jw-blue-rgb) / 0.18);
-    }
-  }
 }
 
 .field-container {
     margin-bottom: 1.25rem;
 }
 
-.field-label {
-  display: block;
-  margin-bottom: 0.375rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
+.currency-input {
+  position: relative;
+}
+
+.currency-input__symbol {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+.currency-input .text-input {
+  padding-left: 1.75rem;
 }
 
 .status-text {
   margin-top: 1rem;
   font-size: 0.875rem;
   color: var(--color-text-muted);
-
-  &--warning { color: #B45309; }
-  &--subtle { margin-top: 0.75rem; font-size: 0.75rem; }
 }
+
+.status-text--warning { color: #B45309; }
+.status-text--subtle { margin-top: 0.75rem; font-size: 0.75rem; }
 
 .split-results {
   display: flex;
@@ -148,37 +144,37 @@ const cardOpacity = computed(() => (isFetching.value ? 0.85 : 1))
   border-radius: var(--radius-md);
   background: var(--jw-blue-light);
   border-left: 3px solid var(--jw-blue);
-
-  &__label { font-weight: 600; color: var(--jw-navy); min-width: 3rem; }
-
-  &__percent {
-    width: 3.25rem;
-    border: 1px solid var(--color-border);
-    border-radius: 0.25rem;
-    padding: 0.25rem 0.375rem;
-    font-size: 0.875rem;
-    font-family: inherit;
-
-    &:focus { outline: none; border-color: var(--jw-blue); }
-  }
-
-  &__value {
-    margin-left: auto;
-    font-family: 'SFMono-Regular', Consolas, monospace;
-    color: var(--jw-navy);
-    font-size: 0.9375rem;
-  }
-
-  &__remove {
-    border: none;
-    background: none;
-    color: var(--jw-blue);
-    cursor: pointer;
-    font-size: 1.1rem;
-    line-height: 1;
-    padding: 0 0.25rem;
-
-    &:hover { color: var(--jw-navy); }
-  }
 }
+
+.split-row__label { font-weight: 600; color: var(--jw-navy); min-width: 3rem; }
+
+.split-row__percent {
+  width: 3.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.375rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+}
+
+.split-row__percent:focus { outline: none; border-color: var(--jw-blue); }
+
+.split-row__value {
+  margin-left: auto;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  color: var(--jw-navy);
+  font-size: 0.9375rem;
+}
+
+.split-row__remove {
+  border: none;
+  background: none;
+  color: var(--jw-blue);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 0.25rem;
+}
+
+.split-row__remove:hover { color: var(--jw-navy); }
 </style>
