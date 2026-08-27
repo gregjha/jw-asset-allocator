@@ -11,7 +11,7 @@ const PRIMARY_WEIGHT = 0.7
 const SECONDARY_WEIGHT = 0.3
 
 export const useCryptoSplitStore = defineStore('cryptoSplit', () => {
-  const { rates, isFetching, error, lastUpdated } = useCryptoRates()
+  const { rates, isFetching, error, lastUpdated } = useCryptoRates(30000)
 
   const symbols = computed(() => Object.keys(rates.value).sort())
 

@@ -1,73 +1,36 @@
-# greg-ha-justworks
+# Crypto Asset Allocator
 
-This template should help get you started developing with Vue 3 in Vite.
+Allows users to calculate how a USD amount converts to a 70/30 split of two selected crypto coins using live Coinbase rates.
 
-## Recommended IDE Setup
-
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+## How To Run
 
 ```sh
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
-```
-
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
-
-```sh
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
 npm run build
 
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
+npm run dev       # Run in dev server
+npm run preview   # Run in local production build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
+## Architecture
 ```
+src/
+├── App.vue                       root app
+├── components/
+│   ├── AssetAllocator.vue        main component for inputting desired USD assets and crypto assets while displaying results
+│   ├── CoinAutocomplete.vue      reusable autocomplete input component
+├── stores/
+│   └── cryptoStore.ts            global state management for the 
+├── composables/
+│   └── useCryptoRates.ts         factory composable that handles fetch states, data formatting, and polling
+└── assets/
+    ├── base.css                  reset + shared .surface-card class
+    └── main.css                  entry point (@imports tokens + base)
+```
+
+## Design Decisions
+
+- Conversion rates are fetched on mount and then polled continuously for updates. The thought process for this was that crypto assets are generally very volatile and can change value pretty quickly. In order to reduce polling amounts, the polling stops when the user is no longer viewing the page and users have an updated date and time of the last **successful** update. 
+- Pinia was used as a global state management library and `cryptoStore.ts` is used as a single source of truth for the most recently updated crypto conversion rates. Global state management was probably overkill for this assignment, but a larger real world project with more components will draw upon the same data and will most certainly need something like this. There are two `AssetAllocator` components rendered to somewhat simulate that situation and to show that the store works correctly. 
+- A factory composable, `useCryptoRates.ts`, handles fetch and polling. It's wrapped in the global store since the composable exposes the properly formatted conversion rate data from the Coinbase API and fetch states, which now every component can access through the store.
+- An autocomplete input component, `CoinAutocomplete`, is used to allow the user to search for their desired crypto currency, since the list of currencies is pretty big. In a real world situation, this would probably be a base component that is reusable across a whole codebase or imported from a component library and not actually built out. For the sake of this project, I built one just to try it out in Vue.
