@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 
 // A store isn't completely necessary for this assignment, but it is extremely useful in a realistic bigger feature where more potential components could consume the same crypto conversion data table
@@ -15,12 +15,10 @@ const store = useCryptoSplitStore()
 const { isFetching, isRefreshThrottled, error, symbols, lastUpdated } = storeToRefs(store)
 const { refresh } = store
 
-const canRefresh = computed(() => !isFetching.value && !isRefreshThrottled.value)
-const refreshButtonLabel = computed(() => {
-  if (isFetching.value) return 'Updating...'
-  if (!canRefresh.value) return 'Recently Updated'
-  return 'Update'
-})
+const uid = useId()
+const usdAmountId = `${uid}-usd-amount`
+const primaryCoinId = `${uid}-primary-coin`
+const secondaryCoinId = `${uid}-secondary-coin`
 
 const primaryCoin = ref('BTC')
 const secondaryCoin = ref('ETH')
@@ -36,6 +34,12 @@ const lastUpdatedLabel = computed(() => {
   if (!lastUpdated.value) return null
   return lastUpdated.value.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'medium' })
 })
+const canRefresh = computed(() => !isFetching.value && !isRefreshThrottled.value)
+const refreshButtonLabel = computed(() => {
+  if (isFetching.value) return 'Updating...'
+  if (!canRefresh.value) return 'Recently Updated'
+  return 'Update'
+})
 
 watch(usdAmount, (newValue) => {
   if (typeof newValue !== 'number' || !Number.isFinite(newValue)) return
@@ -49,11 +53,11 @@ watch(usdAmount, (newValue) => {
     <h2 class="split-card__title">{{ title }}</h2>
 
     <div class="field-container">
-      <label class="field-label" for="usd-amount">Investable USD Assets</label>
+      <label class="field-label" :for="usdAmountId">Investable USD Assets</label>
       <div class="currency-input">
         <span class="currency-input__symbol">$</span>
         <input
-          id="usd-amount"
+          :id="usdAmountId"
           v-model.number="usdAmount"
           type="number"
           class="text-input"
@@ -65,7 +69,7 @@ watch(usdAmount, (newValue) => {
 
     <div class="field-container">
       <AutocompleteInput
-        id="primary-coin"
+        :id="primaryCoinId"
         label="Primary Coin (70%)"
         v-model="primaryCoin"
         :options="primaryCoinOptions"
@@ -74,7 +78,7 @@ watch(usdAmount, (newValue) => {
 
     <div class="field-container">
       <AutocompleteInput
-        id="secondary-coin"
+        :id="secondaryCoinId"
         label="Secondary Coin (30%)"
         v-model="secondaryCoin"
         :options="secondaryCoinOptions"
@@ -193,10 +197,10 @@ watch(usdAmount, (newValue) => {
 .refresh-button {
   flex-shrink: 0;
   padding: 0.25rem 0.625rem;
-  border: 1px solid var(--jw-blue);
+  border: 1px solid var(--color-input-border);
   border-radius: var(--radius-sm);
   background: none;
-  color: var(--jw-blue);
+  color: var(--jw-navy);
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
