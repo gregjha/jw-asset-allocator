@@ -2,8 +2,8 @@
 import { computed, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 
-// A store isn't completely necessary for this assignment, but it is useful in hypothetical feature additions
-// with more components needing the crypto conversion data
+// A store isn't completely necessary for this assignment, but it is useful in a realistic bigger feature where
+// with more components consume the crypto conversion data
 import { useCryptoSplitStore } from '@/stores/cryptoStore';
 
 const props = defineProps<{
