@@ -12,7 +12,7 @@ npm run dev       # Run in dev server
 npm run preview   # Run in local production build
 ```
 
-## Architecture
+## File Structure
 ```
 src/
 ├── App.vue
