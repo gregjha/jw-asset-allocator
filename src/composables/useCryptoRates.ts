@@ -4,6 +4,7 @@ export function useCryptoRates(intervalMs = 10000) {
   const rates = ref<Record<string, number>>({})
   const isFetching = ref(false)
   const error = ref<string | null>(null)
+  const lastUpdated = ref<Date | null>(null)
 
   async function fetchRates() {
     isFetching.value = true
@@ -18,6 +19,7 @@ export function useCryptoRates(intervalMs = 10000) {
         next[symbol] = 1 / parseFloat(rate)
       }
       rates.value = next
+      lastUpdated.value = new Date()
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Failed to fetch rates'
     } finally {
@@ -57,5 +59,5 @@ export function useCryptoRates(intervalMs = 10000) {
     document.removeEventListener('visibilitychange', handleVisibilityChange)
   })
 
-  return { rates, isFetching, error }
+  return { rates, isFetching, error, lastUpdated }
 }

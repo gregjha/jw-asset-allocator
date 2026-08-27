@@ -12,7 +12,7 @@ const props = defineProps<{
 }>()
 
 const store = useCryptoSplitStore();
-const { isFetching, error, symbols } = storeToRefs(store);
+const { isFetching, error, symbols, lastUpdated } = storeToRefs(store);
 
 const primaryCoin = ref('BTC');
 const secondaryCoin = ref('ETH');
@@ -22,6 +22,10 @@ const primaryCoinOptions = computed(() => symbols.value.filter((s) => s !== seco
 const secondaryCoinOptions = computed(() => symbols.value.filter((s) => s !== primaryCoin.value));
 const split = computed(() => store.splitFor(usdAmount.value, primaryCoin.value, secondaryCoin.value))
 const cardOpacity = computed(() => (isFetching.value ? 0.85 : 1))
+const lastUpdatedLabel = computed(() => {
+  if (!lastUpdated.value) return null;
+  return lastUpdated.value.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'medium' });
+})
 
 watch(usdAmount, (newValue) => {
   if (typeof newValue !== 'number' || !Number.isFinite(newValue)) return;
@@ -63,7 +67,9 @@ watch(usdAmount, (newValue) => {
         <span class="split-row__value">{{ split.secondaryAmount.toFixed(8) }} {{ secondaryCoin }}</span>
       </div>
     </div>
-    
+
+    <div v-if="lastUpdatedLabel" class="status-text status-text--subtle">Last updated {{ lastUpdatedLabel }}</div>
+
     <!-- Error state if initial conversions can't be fetched -->
     <div v-if="error && !split" class="status-text">
         Error fetching conversions, please try again later.
