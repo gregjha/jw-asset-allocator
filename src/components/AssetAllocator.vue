@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 
-// A store isn't completely necessary for this assignment, but it is extremely useful in a realistic bigger feature where more potential components could consume the same crypto conversion data
+// A store isn't completely necessary for this assignment, but it is extremely useful in a realistic bigger feature where more potential components could consume the same crypto conversion data table
 import { useCryptoSplitStore } from '@/stores/cryptoStore';
 import CoinAutocomplete from './CoinAutocomplete.vue';
 
@@ -11,26 +11,23 @@ const props = defineProps<{
   defaultUSDAmount?: number
 }>()
 
-const primaryCoin = ref('BTC');
-const secondaryCoin = ref('ETH');
-
 const store = useCryptoSplitStore();
 const { isFetching, error, symbols } = storeToRefs(store);
 
+const primaryCoin = ref('BTC');
+const secondaryCoin = ref('ETH');
+const usdAmount = ref(props.defaultUSDAmount ?? 1000);
+
 const primaryCoinOptions = computed(() => symbols.value.filter((s) => s !== secondaryCoin.value));
 const secondaryCoinOptions = computed(() => symbols.value.filter((s) => s !== primaryCoin.value));
-
-const usdAmount = ref(props.defaultUSDAmount ?? 1000);
+const split = computed(() => store.splitFor(usdAmount.value, primaryCoin.value, secondaryCoin.value))
+const cardOpacity = computed(() => (isFetching.value ? 0.85 : 1))
 
 watch(usdAmount, (newValue) => {
   if (typeof newValue !== 'number' || !Number.isFinite(newValue)) return;
   const rounded = Math.round(newValue * 100) / 100;
   if (rounded !== newValue) usdAmount.value = rounded;
 });
-
-
-const split = computed(() => store.splitFor(usdAmount.value, primaryCoin.value, secondaryCoin.value))
-const cardOpacity = computed(() => (isFetching.value ? 0.85 : 1))
 
 </script>
 

@@ -48,10 +48,7 @@ export function useCryptoRates(intervalMs = 10000) {
       startPolling()
     }
   }
-
-  // Uses onScopeDispose (not onMounted/onUnmounted) so this also works
-  // when called from inside a Pinia store's setup, whose effect scope
-  // is independent of whichever component first instantiates the store.
+  
   startPolling()
   document.addEventListener('visibilitychange', handleVisibilityChange)
 
