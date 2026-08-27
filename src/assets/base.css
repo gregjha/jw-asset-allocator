@@ -6,11 +6,14 @@
   --jw-blue: #1E98FF;
   --jw-blue-rgb: 30, 152, 255;
   --jw-blue-light: #E8F4FF;
+  
   --color-border: #DCE3EC;
   --color-text-muted: #5A6B85;
   --color-surface: #FFFFFF;
+
   --radius-lg: 1rem;
   --radius-md: 0.5rem;
+  --radius-sm: 0.25rem;
 }
 
 body {

@@ -130,7 +130,7 @@ function selectActive() {
 
 .coin-autocomplete__option {
   padding: 0.5rem 0.625rem;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-sm);
   font-size: 0.9375rem;
   cursor: pointer;
 }

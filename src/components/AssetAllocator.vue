@@ -54,13 +54,13 @@ watch(usdAmount, (newValue) => {
     <div v-if="isFetching && !split" class="status-text">Fetching live conversions...</div>
 
     <div v-else-if="split" class="split-results">
-      <div class="split-row split-row--primary">
+      <div class="split-row">
         <span class="split-row__label">{{ primaryCoin }} (70%)</span>
-        <span class="split-row__value">{{ split.primaryAmount.toFixed(6) }} {{ primaryCoin }}</span>
+        <span class="split-row__value">{{ split.primaryAmount.toFixed(8) }} {{ primaryCoin }}</span>
       </div>
-      <div class="split-row split-row--secondary">
+      <div class="split-row">
         <span class="split-row__label">{{ secondaryCoin }} (30%)</span>
-        <span class="split-row__value">{{ split.secondaryAmount.toFixed(6) }} {{ secondaryCoin }}</span>
+        <span class="split-row__value">{{ split.secondaryAmount.toFixed(8) }} {{ secondaryCoin }}</span>
       </div>
     </div>
     
@@ -148,7 +148,7 @@ watch(usdAmount, (newValue) => {
 .split-row__percent {
   width: 3.25rem;
   border: 1px solid var(--color-border);
-  border-radius: 0.25rem;
+  border-radius: var(--radius-sm);
   padding: 0.25rem 0.375rem;
   font-size: 0.875rem;
   font-family: inherit;
