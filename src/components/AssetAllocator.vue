@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia';
 
 // A store isn't completely necessary for this assignment, but it is extremely useful in a realistic bigger feature where more potential components could consume the same crypto conversion data table
 import { useCryptoSplitStore } from '@/stores/cryptoStore';
-import CoinAutocomplete from './CoinAutocomplete.vue';
+import AutocompleteInput from './AutocompleteInput.vue';
 
 const props = defineProps<{
   title?: string;
@@ -48,11 +48,11 @@ watch(usdAmount, (newValue) => {
     </div>
 
     <div class="field-container">
-      <CoinAutocomplete id="primary-coin" label="Primary Coin (70%)" v-model="primaryCoin" :options="primaryCoinOptions" />
+      <AutocompleteInput id="primary-coin" label="Primary Coin (70%)" v-model="primaryCoin" :options="primaryCoinOptions" />
     </div>
 
     <div class="field-container">
-      <CoinAutocomplete id="secondary-coin" label="Secondary Coin (30%)" v-model="secondaryCoin" :options="secondaryCoinOptions" />
+      <AutocompleteInput id="secondary-coin" label="Secondary Coin (30%)" v-model="secondaryCoin" :options="secondaryCoinOptions" />
     </div>
 
     <div v-if="isFetching && !split" class="status-text" aria-live="polite">Fetching live conversions...</div>

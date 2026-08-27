@@ -75,7 +75,7 @@ function selectActive() {
 </script>
 
 <template>
-  <div class="coin-autocomplete">
+  <div class="autocomplete">
     <label class="field-label" :for="id">{{ label }}</label>
     <input
       :id="id"
@@ -97,31 +97,31 @@ function selectActive() {
       @keydown.esc="closeDropdown"
     />
 
-    <ul v-if="isOpen && filteredOptions.length" :id="listboxId" role="listbox" class="coin-autocomplete__list">
+    <ul v-if="isOpen && filteredOptions.length" :id="listboxId" role="listbox" class="autocomplete__list">
       <li
         v-for="(option, index) in filteredOptions"
         :id="optionId(index)"
         :key="option"
         role="option"
         :aria-selected="index === activeIndex"
-        class="coin-autocomplete__option"
-        :class="{ 'coin-autocomplete__option--active': index === activeIndex }"
+        class="autocomplete__option"
+        :class="{ 'autocomplete__option--active': index === activeIndex }"
         @mousedown.prevent="selectOption(option)"
       >
         {{ option }}
       </li>
     </ul>
-    <p v-else-if="isOpen" class="coin-autocomplete__empty" aria-live="polite" role="status">No matches</p>
+    <p v-else-if="isOpen" class="autocomplete__empty" aria-live="polite" role="status">No matches</p>
   </div>
 </template>
 
 <style scoped>
-.coin-autocomplete {
+.autocomplete {
   position: relative;
   text-align: left;
 }
 
-.coin-autocomplete__list {
+.autocomplete__list {
   position: absolute;
   z-index: 10;
   top: calc(100% + 0.25rem);
@@ -138,19 +138,19 @@ function selectActive() {
   box-shadow: 0 4px 12px rgb(var(--jw-navy-rgb) / 0.12);
 }
 
-.coin-autocomplete__option {
+.autocomplete__option {
   padding: 0.5rem 0.625rem;
   border-radius: var(--radius-sm);
   font-size: 0.9375rem;
   cursor: pointer;
 }
 
-.coin-autocomplete__option:hover,
-.coin-autocomplete__option--active {
+.autocomplete__option:hover,
+.autocomplete__option--active {
   background: var(--jw-blue-light);
 }
 
-.coin-autocomplete__empty {
+.autocomplete__empty {
   position: absolute;
   z-index: 10;
   top: calc(100% + 0.25rem);
