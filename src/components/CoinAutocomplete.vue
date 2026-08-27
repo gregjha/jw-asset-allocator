@@ -16,14 +16,19 @@ const query = ref(props.modelValue);
 const isOpen = ref(false);
 const activeIndex = ref(-1);
 
-watch(() => props.modelValue, (value) => {
-  query.value = value;
-});
-
+const listboxId = computed(() => `${props.id}-listbox`);
+function optionId(index: number) {
+  return `${props.id}-option-${index}`;
+}
+const activeOptionId = computed(() => (activeIndex.value >= 0 ? optionId(activeIndex.value) : undefined));
 const filteredOptions = computed(() => {
   const q = query.value.trim().toUpperCase();
   const matches = q ? props.options.filter((option) => option.includes(q)) : props.options;
   return matches.slice(0, 5);
+});
+
+watch(() => props.modelValue, (value) => {
+  query.value = value;
 });
 
 function openDropdown() {
@@ -81,6 +86,8 @@ function selectActive() {
       role="combobox"
       aria-autocomplete="list"
       :aria-expanded="isOpen"
+      :aria-controls="listboxId"
+      :aria-activedescendant="activeOptionId"
       @focus="handleFocus"
       @input="openDropdown"
       @blur="handleBlur"
@@ -90,10 +97,13 @@ function selectActive() {
       @keydown.esc="closeDropdown"
     />
 
-    <ul v-if="isOpen && filteredOptions.length" class="coin-autocomplete__list">
+    <ul v-if="isOpen && filteredOptions.length" :id="listboxId" role="listbox" class="coin-autocomplete__list">
       <li
         v-for="(option, index) in filteredOptions"
+        :id="optionId(index)"
         :key="option"
+        role="option"
+        :aria-selected="index === activeIndex"
         class="coin-autocomplete__option"
         :class="{ 'coin-autocomplete__option--active': index === activeIndex }"
         @mousedown.prevent="selectOption(option)"
@@ -101,7 +111,7 @@ function selectActive() {
         {{ option }}
       </li>
     </ul>
-    <p v-else-if="isOpen" class="coin-autocomplete__empty">No matches</p>
+    <p v-else-if="isOpen" class="coin-autocomplete__empty" aria-live="polite" role="status">No matches</p>
   </div>
 </template>
 
@@ -123,7 +133,7 @@ function selectActive() {
   padding: 0.25rem;
   list-style: none;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-input-border);
   border-radius: var(--radius-md);
   box-shadow: 0 4px 12px rgb(var(--jw-navy-rgb) / 0.12);
 }
@@ -151,7 +161,7 @@ function selectActive() {
   font-size: 0.875rem;
   color: var(--color-text-muted);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-input-border);
   border-radius: var(--radius-md);
 }
 </style>

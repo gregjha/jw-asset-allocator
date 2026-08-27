@@ -55,9 +55,9 @@ watch(usdAmount, (newValue) => {
       <CoinAutocomplete id="secondary-coin" label="Secondary Coin (30%)" v-model="secondaryCoin" :options="secondaryCoinOptions" />
     </div>
 
-    <div v-if="isFetching && !split" class="status-text">Fetching live conversions...</div>
+    <div v-if="isFetching && !split" class="status-text" aria-live="polite">Fetching live conversions...</div>
 
-    <div v-else-if="split" class="split-results">
+    <div v-else-if="split" class="split-results" aria-live="polite" aria-atomic="true">
       <div class="split-row">
         <span class="split-row__label">{{ primaryCoin }} (70%)</span>
         <span class="split-row__value">{{ split.primaryAmount.toFixed(8) }} {{ primaryCoin }}</span>
@@ -71,12 +71,12 @@ watch(usdAmount, (newValue) => {
     <div v-if="lastUpdatedLabel" class="status-text status-text--subtle">Last updated {{ lastUpdatedLabel }}</div>
 
     <!-- Error state if initial conversions can't be fetched -->
-    <div v-if="error && !split" class="status-text">
+    <div v-if="error && !split" class="status-text--warning" role="alert">
         Error fetching conversions, please try again later.
     </div>
 
     <!-- Error message to show below last conversions if refresh fetch errors -->
-    <div v-if="error && split" class="status-text">
+    <div v-if="error && split" class="status-text--warning" role="alert">
         Error refreshing live conversion, shown conversions may not be current.
     </div>
   </div>
@@ -89,7 +89,7 @@ watch(usdAmount, (newValue) => {
   padding: 1.75rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 2px 8px rgb(var(--jw-navy-rgb) / 0.08);
+  box-shadow: 0 6px 10px -2px rgb(var(--color-shadow-rgb) / 0.25), 0 24px 48px rgb(var(--color-shadow-rgb) / 0.30);
   background: var(--color-surface);
   opacity: v-bind(cardOpacity);
   transition: opacity 0.2s ease;
@@ -130,7 +130,7 @@ watch(usdAmount, (newValue) => {
   color: var(--color-text-muted);
 }
 
-.status-text--warning { color: #B45309; }
+.status-text--warning { margin-top: 0.75rem; font-size: 0.75rem; color: var(--color-error); }
 .status-text--subtle { margin-top: 0.75rem; font-size: 0.75rem; }
 
 .split-results {
