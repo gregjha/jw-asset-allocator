@@ -15,17 +15,17 @@ npm run preview   # Run in local production build
 ## Architecture
 ```
 src/
-├── App.vue                       root app
+├── App.vue
 ├── components/
-│   ├── AssetAllocator.vue        main component for inputting desired USD assets and crypto assets while displaying results
-│   ├── CoinAutocomplete.vue      reusable autocomplete input component
+│   ├── AssetAllocator.vue
+│   ├── CoinAutocomplete.vue
 ├── stores/
-│   └── cryptoStore.ts            global state management for the 
+│   └── cryptoStore.ts
 ├── composables/
-│   └── useCryptoRates.ts         factory composable that handles fetch states, data formatting, and polling
+│   └── useCryptoRates.ts
 └── assets/
-    ├── base.css                  reset + shared .surface-card class
-    └── main.css                  entry point (@imports tokens + base)
+    ├── base.css
+    └── main.css
 ```
 
 ## Design Decisions
